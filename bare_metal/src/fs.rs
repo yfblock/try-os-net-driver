@@ -1,7 +1,6 @@
 use alloc::vec;
-use alloc::vec::Vec;
 use fatfs::{NullTimeProvider, LossyOemCpConverter};
-use crate::{block::DEVICE, sbi::shutdown};
+use crate::block::DEVICE;
 #[derive(Debug)]
 struct AtaError;
 

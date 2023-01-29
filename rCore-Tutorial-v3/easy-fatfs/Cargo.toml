@@ -1,0 +1,22 @@
+[package]
+name = "easy-fatfs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[patch.crates-io]
+fatfs = { git = "https://github.com/rafalh/rust-fatfs" }
+
+[dependencies]
+spin = "0.7.0"
+lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
+
+fatfs = { version = "0.4.0", default-features = false, features = ["alloc", "lfn", "log_level_trace", "unicode"] }
+
+[profile.release]
+debug = true
+
+[features]
+board_qemu = []
+board_k210 = []
