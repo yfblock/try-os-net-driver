@@ -1,6 +1,6 @@
 use core::mem::size_of;
 
-use alloc::vec;
+use alloc::{vec, string::String, format};
 
 use crate::trap::hexdump;
 
@@ -26,6 +26,10 @@ pub const fn ip(a1: u8, a2: u8, a3: u8, a4: u8) -> u32 {
     (a1 as u32) << 24 | (a2 as u32) << 16 | (a3 as u32) << 8 | (a4 as u32)
 }
 
+#[inline]
+pub fn iptostr(ip: u32) -> String {
+    format!("{}.{}.{}.{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff)
+}
 
 
 pub fn handle_eth_receive(data: &[u8]) {
@@ -38,6 +42,7 @@ pub fn handle_eth_receive(data: &[u8]) {
     match rtype {
         ETH_RTYPE_IP => {
             println!("handle ip packet");
+            handle_ip_receive(&data[size_of::<eth>()..]);
         }
         ETH_RTYPE_ARP => {
             println!("handle ARP packet");
@@ -131,6 +136,72 @@ pub fn arp_tramsmit(op: u16, dmac: &[u8; 6], dip: u32) {
     eth_transmite(&mut data, ETH_RTYPE_ARP);
 }
 
+// ip packet
+const IP_PROTOCAL_ICMP: u8 = 1;
+const IP_PROTOCAL_IGMP: u8 = 2;
+const IP_PROTOCAL_TCP: u8 = 6;
+const IP_PROTOCAL_UDP: u8 = 17;
+#[repr(packed)]
+#[derive(Debug, Clone, Copy)]
+pub struct ip {
+    vhl: u8,    // version << 4 | header length >> 2
+    tos: u8,    // type of service
+    len: u16,   // total length, packet length
+    id: u16,    // identification, can combine all packets
+    off: u16,   // fragment offset field, packet from
+    ttl: u8,    // time to live
+    pro: u8,    // protocol， ICMP(1)、IGMP(2)、TCP(6)、UDP(17)
+    sum: u16,   // checksum,
+    src: u32,   // souce ip
+    dst: u32 // destination ip
+}
+
+pub fn handle_ip_receive(data: &[u8]) {
+    let ip_header = unsafe{(data.as_ptr() as usize as *const ip).as_ref()}.unwrap();
+    
+    println!("{} receive a packet from {}", iptostr(ip_header.dst.to_be()), iptostr(ip_header.src.to_be()));
+    print!("packet length: {}   ", ip_header.len.to_be());
+
+    match ip_header.pro {
+        IP_PROTOCAL_ICMP => {
+            println!("protocal: ICMP");
+        },
+        IP_PROTOCAL_IGMP => {
+            println!("protocal: IGMP");
+        },
+        IP_PROTOCAL_TCP => {
+            println!("protocal: TCP");
+        },
+        IP_PROTOCAL_UDP => {
+            println!("protocal: UDP");
+            handle_udp_receive(&data[size_of::<ip>()..]);
+        }
+        _ => {}
+    }
+}
+
+// udp packet
+
+#[repr(packed)]
+#[derive(Debug, Clone, Copy)]
+pub struct udp {
+    sport: u16, // souce port
+    dport: u16, // destination port
+    ulen: u16,  // length, including udp header, not including IP header
+    sum: u16    // checksum
+}
+
+pub fn handle_udp_receive(data: &[u8]) {
+    let udp_header = unsafe{(data.as_ptr() as usize as *const udp).as_ref()}.unwrap();
+
+    println!("from port({}) to port({})  len: {}", udp_header.sport.to_be(), udp_header.dport.to_be(), udp_header.ulen.to_be());
+
+    println!("receive data: ");
+    hexdump(&data[size_of::<udp>()..])
+
+}
+
+
 /*
 arp request and reply data
 ------------------------------ hexdump -------------------------------
@@ -146,6 +217,16 @@ ff ff ff ff ff ff 52 54 00 12 34 56 08 06 00 01       ......RT..4V....
 ---------------------------- hexdump end -----------------------------
 
 
-
+the data
+------------------------------ hexdump -------------------------------
+52 54 00 12 34 56 52 55 0a 00 02 02 08 00 45 00       RT..4VRU......E.
+00 2b 00 03 00 00 40 11 62 af 0a 00 02 02 0a 00       .+....@.b.......
+02 0f d8 67 07 d0 00 17 35 21 74 68 69 73 20 69       ...g....5!this i
+73 20 61 20 70 69 6e 67 21                            s a ping!                     
+---------------------------- hexdump end -----------------------------
+upd data
+------------------------------ hexdump -------------------------------
+74 68 69 73 20 69 73 20 61 20 70 69 6e 67 21          this is a ping!   
+---------------------------- hexdump end -----------------------------
 
 */
