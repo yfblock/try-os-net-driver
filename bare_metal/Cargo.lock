@@ -19,6 +19,15 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "bare-metal"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5deb64efa5bd81e31fcd1938615a6d98c82eafcbcd787162b6f63b91d6bac5b3"
+dependencies = [
+ "rustc_version",
+]
+
+[[package]]
+name = "bare-metal"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8fe8f5a8a398345e52358e18ff07cc17a568fbca5c6f73873d3a62056309603"
@@ -113,6 +122,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fdt"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "964f5becd44d069dca0beea2b4bc05639ae7bf3b3f5369c295aff360bb57cca2"
+
+[[package]]
 name = "futures-core"
 version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -153,7 +168,7 @@ dependencies = [
  "cfg-if",
  "cortex-a",
  "raw-cpuid",
- "riscv",
+ "riscv 0.7.0",
  "spin 0.9.4",
  "tock-registers",
  "x86_64",
@@ -215,9 +230,11 @@ dependencies = [
  "conquer-once",
  "crossbeam-queue",
  "fatfs",
+ "fdt",
  "futures-util",
  "lazy_static",
  "nvme_driver",
+ "riscv 0.6.0",
  "spin 0.9.4",
  "virtio-drivers",
 ]
@@ -262,10 +279,22 @@ checksum = "456c603be3e8d448b072f410900c09faf164fbce2d480456f50eea6e25f9c848"
 
 [[package]]
 name = "riscv"
+version = "0.6.0"
+source = "git+https://github.com/rcore-os/riscv#11d43cf7cccb3b62a3caaf3e07a1db7449588f9a"
+dependencies = [
+ "bare-metal 0.2.5",
+ "bit_field",
+ "bitflags",
+ "log",
+ "riscv-target",
+]
+
+[[package]]
+name = "riscv"
 version = "0.7.0"
 source = "git+https://github.com/rust-embedded/riscv?rev=cd31989ba1#cd31989ba11d5d64e1addd8aab98bfb00dd927d5"
 dependencies = [
- "bare-metal",
+ "bare-metal 1.0.0",
  "bit_field",
  "embedded-hal",
  "riscv-target",
@@ -282,6 +311,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustc_version"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
+dependencies = [
+ "semver",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -292,6 +330,21 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "semver"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"
+dependencies = [
+ "semver-parser",
+]
+
+[[package]]
+name = "semver-parser"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "spin"

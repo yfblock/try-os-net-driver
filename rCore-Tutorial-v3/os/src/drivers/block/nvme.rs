@@ -3,7 +3,9 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 use nvme_driver::{DmaAllocator, IrqController, NvmeInterface};
 use core::ptr::write_volatile;
 
+use crate::config::PAGE_SIZE;
 use crate::mm::StepByOne;
+use crate::mm::frame_alloc_trackers;
 use crate::sync::UPSafeCell;
 use crate::mm::FrameTracker;
 use crate::mm::VirtAddr;
@@ -25,16 +27,11 @@ lazy_static! {
 pub struct DmaAllocatorImpl;
 impl DmaAllocator for DmaAllocatorImpl {
     fn dma_alloc(size: usize) -> usize{
-        let mut ppn_base = PhysPageNum(0);
-        for i in 0..(size / 0x1000) {
-            let frame = frame_alloc().unwrap();
-            if i == 0 {
-                ppn_base = frame.ppn;
-            }
-            assert_eq!(frame.ppn.0, ppn_base.0 + i);
-            QUEUE_FRAMES.exclusive_access().push(frame);
-        }
+        let trakcers = frame_alloc_trackers(size / PAGE_SIZE);
+        let ppn_base = trakcers.as_ref().unwrap().last().unwrap().ppn;
+        QUEUE_FRAMES.exclusive_access().append(&mut trakcers.unwrap());
         let pa: PhysAddr = ppn_base.into();
+
         pa.0
     }
 

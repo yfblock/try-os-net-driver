@@ -2,8 +2,13 @@ pub const CLOCK_FREQ: usize = 12500000;
 pub const MEMORY_END: usize = 0x801000000;
 
 pub const MMIO: &[(usize, usize)] = &[
-    (0x0010_0000, 0x00_2000), // VIRT_TEST/RTC  in virt machine
-    (0x1000_1000, 0x00_1000), // Virtio Block in virt machine
+    (0x0010_0000, 0x0000_2000), // VIRT_TEST/RTC  in virt machine
+    (0x0c00_0000, 0x0100_0000), // PLIC
+    (0x1000_0000, 0x0000_1000), // virtio
+    (0x1000_8000, 0x0000_1000), // virtio
+    (0x1000_1000, 0x0000_1000), // Virtio Block in virt machine
+    (0x3000_0000, 0x1000_0000), // PCI
+    (0x4000_0000, 0x0010_0000), // NVME
 ];
 
 pub type BlockDeviceImpl = crate::drivers::block::VirtIOBlock;

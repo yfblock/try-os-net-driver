@@ -14,6 +14,7 @@
 mod context;
 
 use crate::config::{TRAMPOLINE, TRAP_CONTEXT};
+// use crate::pci::e1000::NET_DEVICE;
 use crate::syscall::syscall;
 use crate::task::{
     current_trap_cx, current_user_token, exit_current_and_run_next, suspend_current_and_run_next, TaskContext,
@@ -32,6 +33,7 @@ global_asm!(include_str!("trap.S"));
 /// initialize CSR `stvec` as the entry of `__alltraps`
 pub fn init() {
     set_kernel_trap_entry();
+    
 }
 
 fn set_kernel_trap_entry() {
@@ -63,6 +65,7 @@ pub fn trap_handler() -> ! {
     set_kernel_trap_entry();
     let scause = scause::read();
     let stval = stval::read();
+
     match scause.cause() {
         Trap::Exception(Exception::UserEnvCall) => {
             // jump to next instruction anyway
@@ -97,6 +100,21 @@ pub fn trap_handler() -> ! {
         Trap::Interrupt(Interrupt::SupervisorTimer) => {
             set_next_trigger();
             suspend_current_and_run_next();
+        }
+        Trap::Interrupt(Interrupt::SupervisorExternal) => {
+            // let irq = plic_claim();
+            // println!("irq: {:?}", irq);
+            // let mut net_container = NET_DEVICE.exclusive_access();
+            // let net = net_container.as_mut().unwrap();
+            // net.handle_interrupt();         
+            // let value = net.receive();
+            // if let Some(arr) = value {
+            //     hexdump(&arr);
+            //     net.send(&arr);
+            // }
+
+
+            // plic_complete(irq.unwrap());
         }
         _ => {
             panic!(
@@ -150,3 +168,35 @@ pub fn trap_from_kernel(context: &mut TrapContext, scause: Scause, stval: usize)
 }
 
 pub use context::TrapContext;
+
+pub fn hexdump(data: &[u8]) {
+    const PRELAND_WIDTH: usize = 70;
+    println!("{:-^1$}", " hexdump ", PRELAND_WIDTH);
+    for offset in (0..data.len()).step_by(16) {
+        for i in 0..16 {
+            if offset + i < data.len() {
+                print!("{:02x} ", data[offset + i]);
+            } else {
+                print!("{:02} ", "");
+            }
+        }
+
+        print!("{:>6}", ' ');
+
+        for i in 0..16 {
+            if offset + i < data.len() {
+                let c = data[offset + i];
+                if c >= 0x20 && c <= 0x7e {
+                    print!("{}", c as char);
+                } else {
+                    print!(".");
+                }
+            } else {
+                print!("{:02} ", "");
+            }
+        }
+        
+        println!("");
+    }
+    println!("{:-^1$}", " hexdump end ", PRELAND_WIDTH);
+}

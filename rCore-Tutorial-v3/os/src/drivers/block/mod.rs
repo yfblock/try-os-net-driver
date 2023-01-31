@@ -1,4 +1,4 @@
-mod virtio_blk;
+pub mod virtio_blk;
 mod nvme;
 
 // pub use virtio_blk::VirtIOBlock;

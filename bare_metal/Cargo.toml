@@ -18,11 +18,13 @@ virtio-drivers = "0.1.0"
 lazy_static = { version = "1.4", features = ["spin_no_std"] }
 spin = { version = "0.9.4", default-features = false, features = ["mutex", "lazy"]}
 futures-util = { version = "0.3.25", default-features = false, features = ["alloc"] }
+riscv = { git = "https://github.com/rcore-os/riscv", features = ["inline-asm"] }
 
 crossbeam-queue = { version = "0.3.8", default-features = false, features = ["alloc"] }
 conquer-once = { version = "0.3.2", default-features = false }
 
 # smoltcp = { path = "../smoltcp/", default-features = false, features = ["alloc", "log", "proto-ipv4", "socket-tcp"] }
+fdt = "0.1.4"
 
 fatfs = { version = "0.4.0", default-features = false, features = ["alloc", "lfn", "log_level_trace", "unicode"] }
 

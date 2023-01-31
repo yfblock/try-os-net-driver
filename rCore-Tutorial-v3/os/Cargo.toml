@@ -17,6 +17,15 @@ xmas-elf = "0.7.0"
 virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers", rev = "4ee80e5" }
 easy-fs = { path = "../easy-fatfs", package = "easy-fatfs" }
 nvme_driver = { path = "../../nvme_driver" }
+pci = { git = "https://github.com/rcore-os/pci-rs" }
+
+device_tree = { git = "https://github.com/rcore-os/device_tree-rs", rev = "2f2e55fb" }
+isomorphic_drivers = { git = "https://github.com/rcore-os/isomorphic_drivers", rev = "f7cd97a8", features = [
+    "log",
+] }
+
+array-macro = "2.0.0"
+
 
 [profile.release]
 debug = true

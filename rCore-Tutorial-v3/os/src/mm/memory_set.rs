@@ -154,26 +154,6 @@ impl MemorySet {
             ),
             None,
         );
-        println!("mapping pci memory");
-        memory_set.push(
-            MapArea::new(
-                0x30000000.into(),
-                0x30010000.into(),
-                MapType::Identical,
-                MapPermission::R | MapPermission::W,
-            ),
-            None,
-        );
-        println!("mapping nvme memory");
-        memory_set.push(
-            MapArea::new(
-                0x40000000.into(),
-                0x40010000.into(),
-                MapType::Identical,
-                MapPermission::R | MapPermission::W,
-            ),
-            None,
-        );
         println!("mapping memory-mapped registers");
         for pair in MMIO {
             memory_set.push(

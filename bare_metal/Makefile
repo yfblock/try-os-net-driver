@@ -23,6 +23,8 @@ run: all
 	-device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 \
 	-kernel kernel-qemu \
 	-nographic \
+	-netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap \
+	-device virtio-net-device,netdev=net0 \
 	-smp 1 -m 2G
 	rm nvme.img
 

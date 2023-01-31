@@ -18,11 +18,13 @@
 //! We then call [`task::run_tasks()`] and for the first time go to
 //! userspace.
 
-#![deny(missing_docs)]
-#![deny(warnings)]
+// #![deny(missing_docs)]
+// #![deny(warnings)]
 #![allow(unused_imports)]
 #![no_std]
 #![no_main]
+#![feature(new_uninit)]
+#![feature(stdsimd)]
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
 
@@ -47,6 +49,7 @@ pub mod syscall;
 pub mod task;
 pub mod timer;
 pub mod trap;
+pub mod pci;
 
 use core::arch::{global_asm, asm};
 
@@ -68,6 +71,8 @@ fn clear_bss() {
 #[no_mangle]
 /// the rust entry-point of os
 pub fn rust_main() -> ! {
+
+
     println!("[kernel] Hello, world!");
     clear_bss();
     println!("[kernel] Hello, world!");
@@ -76,6 +81,7 @@ pub fn rust_main() -> ! {
     trap::init();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
+    pci::init();
     fs::list_apps();
     task::add_initproc();
     task::run_tasks();

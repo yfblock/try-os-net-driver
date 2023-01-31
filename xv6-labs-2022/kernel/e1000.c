@@ -178,10 +178,11 @@ e1000_recv(void)
 void
 e1000_intr(void)
 {
+  printf("e1000 intr");
   // tell the e1000 we've seen this interrupt;
   // without this the e1000 won't raise any
   // further interrupts.
   regs[E1000_ICR] = 0xffffffff;
 
-  e1000_recv();
+  // e1000_recv();
 }

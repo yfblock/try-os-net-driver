@@ -30,7 +30,9 @@ DISASM ?= -x
 # Run usertests or usershell
 TEST ?=
 
-build: env $(KERNEL_BIN) fs-img 
+# build: env $(KERNEL_BIN) fs-img 
+
+build: $(KERNEL_BIN)
 
 env:
 	(rustup target list | grep "riscv64gc-unknown-none-elf (installed)") || rustup target add $(TARGET)
@@ -77,7 +79,11 @@ disasm-vim: kernel
 	@vim $(DISASM_TMP)
 	@rm $(DISASM_TMP)
 
-run: run-inner
+FWDPORT=6200
+
+# run: run-inner
+
+run: run-nvme
 
 run-nvme: build
 # make nvme-img
@@ -87,7 +93,12 @@ run-nvme: build
 		-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
 		-kernel $(KERNEL_BIN) \
 		-drive file=nvme.img,if=none,id=nvm \
-		-device nvme,serial=deadbeef,drive=nvm 
+		-device nvme,serial=deadbeef,drive=nvm \
+		-netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap \
+		-device virtio-net-device,netdev=net0
+# -netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap \
+# -device e1000,netdev=net0,bus=pcie.0
+
 
 # run-inner: build
 # 	@qemu-system-riscv64 \
@@ -98,14 +109,19 @@ run-nvme: build
 # 		-drive file=$(FS_IMG),if=none,format=raw,id=x0 \
 #         -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 
+# QEMUOPTS += -netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap
+# QEMUOPTS += -device e1000,netdev=net0,bus=pcie.0
+
 run-inner: build
-	qemu-system-riscv64 \
+		qemu-system-riscv64 \
 		-machine virt \
 		-nographic \
 		-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
 		-kernel $(KERNEL_BIN) \
 		-drive file=$(FS_IMG),if=none,format=raw,id=x0 \
-        -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+        -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 \
+		-netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap \
+		-device virtio-net-device,netdev=net0
 
 debug: build
 	@tmux new-session -d \
@@ -120,4 +136,7 @@ gdbserver: build
 gdbclient:
 	@riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
 
-.PHONY: build env kernel clean disasm disasm-vim run-inner fs-img gdbserver gdbclient
+ping:
+	python3 ping.py $(FWDPORT)
+
+.PHONY: build env kernel clean disasm disasm-vim run-inner fs-img gdbserver gdbclient ping
