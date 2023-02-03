@@ -26,6 +26,8 @@ mod process;
 
 use fs::*;
 use process::*;
+
+use crate::net::{SYS_CONNECT, syscall::sys_connect};
 /// handle syscall exception with `syscall_id` and other arguments
 pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
     match syscall_id {
@@ -40,6 +42,8 @@ pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
         SYSCALL_FORK => sys_fork(),
         SYSCALL_EXEC => sys_exec(args[0] as *const u8),
         SYSCALL_WAITPID => sys_waitpid(args[0] as isize, args[1] as *mut i32),
+        // NET SYSCALL
+        SYS_CONNECT => sys_connect(args[0] as _, args[1] as _, args[2] as _),
         _ => panic!("Unsupported syscall_id: {}", syscall_id),
     }
 }

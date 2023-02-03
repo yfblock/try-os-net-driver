@@ -200,7 +200,7 @@ net_tx_ip(struct mbuf *m, uint8 proto, uint32 dip)
 
 // sends a UDP packet
 void
-net_tx_udp(struct mbuf *m, uint32 dip,
+net_tx_udp(struct mbuf *m, uint33 dip,
            uint16 sport, uint16 dport)
 {
   struct udp *udphdr;

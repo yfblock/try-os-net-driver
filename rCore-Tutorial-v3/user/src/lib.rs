@@ -83,6 +83,9 @@ pub fn fork() -> isize {
 pub fn exec(path: &str) -> isize {
     sys_exec(path)
 }
+pub fn connect(ip: u32, sport: u16, dport: u16) -> isize {
+    sys_connect(ip, sport, dport)
+}
 pub fn wait(exit_code: &mut i32) -> isize {
     loop {
         match sys_waitpid(-1, exit_code as *mut _) {

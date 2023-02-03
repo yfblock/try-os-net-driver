@@ -35,13 +35,10 @@ main()
     pci_init();
     sockinit();
 #endif    
-    intr_on();
-    for(;;);
     userinit();      // first user process
 #ifdef KCSAN
     kcsaninit();
 #endif
-
     __sync_synchronize();
     started = 1;
   } else {
@@ -52,7 +49,6 @@ main()
     kvminithart();    // turn on paging
     trapinithart();   // install kernel trap vector
     plicinithart();   // ask PLIC for device interrupts
-
   }
 
   scheduler();        

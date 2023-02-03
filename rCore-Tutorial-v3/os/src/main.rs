@@ -50,6 +50,7 @@ pub mod task;
 pub mod timer;
 pub mod trap;
 pub mod pci;
+pub mod net;
 
 use core::arch::{global_asm, asm};
 
