@@ -1,0 +1,6 @@
+# plan
+
+## support
+
+- dns
+- ntp

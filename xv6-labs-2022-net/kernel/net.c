@@ -343,6 +343,9 @@ net_rx_ip(struct mbuf *m)
   if (iphdr->ip_p != IPPROTO_UDP)
     goto fail;
 
+  uint ip = htonl(iphdr->ip_src);
+  printf("from ip: %d %d %d %d\n", ip >> 24 & 0xff, ip >> 16 & 0xff, ip >> 8 & 0xff, ip & 0xff);
+
   len = ntohs(iphdr->ip_len) - sizeof(*iphdr);
   net_rx_udp(m, len, iphdr);
   return;

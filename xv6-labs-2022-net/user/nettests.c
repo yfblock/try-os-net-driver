@@ -222,6 +222,39 @@ dns_rep(uint8 *ibuf, int cc)
 static void
 dns()
 {
+  // #define N 1000
+  // uint8 obuf[N];
+  // uint8 ibuf[N];
+  // uint32 dst;
+  // int fd;
+  // int len;
+
+  // memset(obuf, 0, N);
+  // memset(ibuf, 0, N);
+  
+  // // 8.8.8.8: google's name server
+  // dst = (8 << 24) | (8 << 16) | (8 << 8) | (8 << 0);
+
+  // if((fd = connect(dst, 10000, 53)) < 0){
+  //   fprintf(2, "ping: connect() failed\n");
+  //   exit(1);
+  // }
+
+  // len = dns_req(obuf);
+  
+  // if(write(fd, obuf, len) < 0){
+  //   fprintf(2, "dns: send() failed\n");
+  //   exit(1);
+  // }
+  // int cc = read(fd, ibuf, sizeof(ibuf));
+  // if(cc < 0){
+  //   fprintf(2, "dns: recv() failed\n");
+  //   exit(1);
+  // }
+  // dns_rep(ibuf, cc);
+
+  // close(fd);
+
   #define N 1000
   uint8 obuf[N];
   uint8 ibuf[N];
@@ -233,7 +266,7 @@ dns()
   memset(ibuf, 0, N);
   
   // 8.8.8.8: google's name server
-  dst = (8 << 24) | (8 << 16) | (8 << 8) | (8 << 0);
+  dst = (114 << 24) | (114 << 16) | (114 << 8) | (114 << 0);
 
   if((fd = connect(dst, 10000, 53)) < 0){
     fprintf(2, "ping: connect() failed\n");
@@ -261,6 +294,9 @@ main(int argc, char *argv[])
 {
   int i, ret;
   uint16 dport = NET_TESTS_PORT;
+
+  dns();
+  exit(0);
 
   printf("nettests running on port %d\n", dport);
   
