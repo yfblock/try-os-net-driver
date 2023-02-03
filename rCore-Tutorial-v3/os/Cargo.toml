@@ -15,8 +15,11 @@ buddy_system_allocator = "0.6"
 bitflags = "1.2.1"
 xmas-elf = "0.7.0"
 virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers", rev = "4ee80e5" }
-easy-fs = { path = "../easy-fatfs", package = "easy-fatfs" }
-nvme_driver = { path = "../../nvme_driver" }
+
+# easy-fs = { path = "../easy-fatfs", package = "easy-fatfs" } # use easy-fatfs
+easy-fs = { path = "../easy-fs", package = "easy-fs" } # use easyfs
+
+nvme_driver = { git = "https://github.com/rcore-os/nvme_driver" }
 pci = { git = "https://github.com/rcore-os/pci-rs" }
 
 device_tree = { git = "https://github.com/rcore-os/device_tree-rs", rev = "2f2e55fb" }
@@ -26,6 +29,9 @@ isomorphic_drivers = { git = "https://github.com/rcore-os/isomorphic_drivers", r
 
 array-macro = "2.0.0"
 
+# lose-net-stack = { git = "https://github.com/yfblock/lose-net-stack" }
+
+lose-net-stack = { path = "../../../lose-net-stack" }
 
 [profile.release]
 debug = true

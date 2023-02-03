@@ -30,9 +30,9 @@ DISASM ?= -x
 # Run usertests or usershell
 TEST ?=
 
-# build: env $(KERNEL_BIN) fs-img 
+build: env $(KERNEL_BIN) fs-img 
 
-build: $(KERNEL_BIN)
+# build: $(KERNEL_BIN)
 
 env:
 	(rustup target list | grep "riscv64gc-unknown-none-elf (installed)") || rustup target add $(TARGET)
@@ -48,13 +48,13 @@ fs-img: $(APPS)
 	@rm -f $(FS_IMG)
 	@cd ../easy-fs-fuse && cargo run --release -- -s ../user/src/bin/ -t ../user/target/riscv64gc-unknown-none-elf/release/
 
-nvme-img:
-	@rm -f nvme.img
-	@dd if=/dev/zero of=nvme.img count=40 bs=1M	# 40M
-	@mkfs.vfat nvme.img -F 32
+nvme-img: $(APPS)
+	@rm -f $(FS_IMG)
+	@dd if=/dev/zero of=$(FS_IMG) count=40 bs=1M	# 40M
+	@mkfs.vfat $(FS_IMG) -F 32
 
 	@mkdir -p mount
-	@sudo mount nvme.img ./mount
+	@sudo mount $(FS_IMG) ./mount
 
 	@sudo cp -r ../user/target/riscv64gc-unknown-none-elf/release/*.bin ./mount
 	@find ./mount -name "*.bin" | awk -F "./mount/" '{print $2}' | awk -F "." '{print $1}' | xargs -i -t sudo mv ./mount/{}.bin ./mount/{}
@@ -92,7 +92,7 @@ run-nvme: build
 		-nographic \
 		-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
 		-kernel $(KERNEL_BIN) \
-		-drive file=nvme.img,if=none,id=nvm \
+		-drive file=$(FS_IMG),if=none,id=nvm \
 		-device nvme,serial=deadbeef,drive=nvm \
 		-netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap \
 		-device virtio-net-device,netdev=net0
