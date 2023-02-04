@@ -77,5 +77,5 @@ pub fn sys_waitpid(pid: isize, exit_code: *mut i32) -> isize {
 }
 
 pub fn sys_connect(dest: u32, sport: u16, dport: u16) -> isize {
-    syscall(SYSCALL_CONNECT, [sport as usize, dport as usize, 0])
+    syscall(SYSCALL_CONNECT, [dest as usize, sport as usize, dport as usize])
 }

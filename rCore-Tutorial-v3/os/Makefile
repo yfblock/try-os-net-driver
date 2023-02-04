@@ -80,7 +80,7 @@ disasm-vim: kernel
 	@rm $(DISASM_TMP)
 
 FWDPORT=6200
-
+SERVERPORT=26099
 # run: run-inner
 
 run: run-nvme
@@ -137,6 +137,6 @@ gdbclient:
 	@riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
 
 ping:
-	python3 ping.py $(FWDPORT)
+	python3 ping.py $(SERVERPORT)
 
 .PHONY: build env kernel clean disasm disasm-vim run-inner fs-img gdbserver gdbclient ping

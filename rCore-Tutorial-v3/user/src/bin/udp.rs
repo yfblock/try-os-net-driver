@@ -13,16 +13,18 @@ extern crate alloc;
 pub fn main() -> i32 {
     println!("udp test open!");
     
-    let udp_fd = connect((10 << 24 | 0 << 16 | 2 << 8 | 2), 2000, 26099);
+    let udp_fd = connect(10 << 24 | 0 << 16 | 2 << 8 | 2, 2000, 26099);
 
     if udp_fd < 0 {
         println!("failed to create udp connection.");
         return -1;
     }
 
-    // let buf = "Hello rCoreOS user program!";
+    let buf = "Hello rCoreOS user program!";
 
-    // write(user_fd, buf);
+    write(udp_fd as usize, buf.as_bytes());
+
+    println!("udp send done");
 
     let mut buf = vec![0u8; 1024];
 

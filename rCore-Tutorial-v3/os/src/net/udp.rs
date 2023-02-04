@@ -68,34 +68,31 @@ impl File for UDP {
     }
 
     fn write(&self, buf: crate::mm::UserBuffer) -> usize {
-        // let lose_net_stack = LOSE_NET_STACK.exclusive_access();
+        let lose_net_stack = LOSE_NET_STACK.exclusive_access();
 
-        // let mut data = vec![0u8; buf.len()];
+        let mut data = vec![0u8; buf.len()];
         
-        // let mut left = 0;
-        // for i in 0..buf.buffers.len() {
-        //     data[left..(left + buf.buffers[i].len())].copy_from_slice(buf.buffers[i]);
-        //     left += buf.buffers[i].len();
-        // }
+        let mut left = 0;
+        for i in 0..buf.buffers.len() {
+            data[left..(left + buf.buffers[i].len())].copy_from_slice(buf.buffers[i]);
+            left += buf.buffers[i].len();
+        }
 
-        // let len = data.len();
+        let len = data.len();
 
-        // let mut t = NET_DEVICE.exclusive_access();
-        // let udp_packet = UDPPacket::new(
-        //     lose_net_stack.ip, 
-        //     lose_net_stack.mac, 
-        //     self.sport, 
-        //     self.target, 
-        //     MacAddress::new([0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), 
-        //     self.dport, 
-        //     len, 
-        //     data.as_ref()
-        // );
-        // let data = udp_packet.build_data();
-        // t.send(&data).expect("can't send to net device");
-        // len
-
-        0
+        let mut t = NET_DEVICE.exclusive_access();
+        let udp_packet = UDPPacket::new(
+            lose_net_stack.ip, 
+            lose_net_stack.mac, 
+            self.sport, 
+            self.target, 
+            MacAddress::new([0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), 
+            self.dport, 
+            len, 
+            data.as_ref()
+        );
+        t.send(&udp_packet.build_data()).expect("can't send to net device");
+        len
     }
 }
 

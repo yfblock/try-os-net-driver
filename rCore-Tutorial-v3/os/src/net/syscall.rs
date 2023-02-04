@@ -14,6 +14,5 @@ pub fn sys_connect(raddr: u32, lport: u16, rport: u16) -> isize {
     let fd = inner.alloc_fd();
     let udp_node = UDP::new(IPv4::from_u32(raddr), lport, rport);
     inner.fd_table[fd] = Some(Arc::new(udp_node));
-    println!("SYS_CONNECT syscall");
     fd as isize    
 }
