@@ -13,7 +13,7 @@ extern crate alloc;
 pub fn main() -> i32 {
     println!("udp test open!");
     
-    let udp_fd = connect(10 << 24 | 0 << 16 | 2 << 8 | 2, 2000, 26099);
+    let udp_fd = connect(10 << 24 | 0 << 16 | 2 << 8 | 2, 2001, 26099);
 
     if udp_fd < 0 {
         println!("failed to create udp connection.");

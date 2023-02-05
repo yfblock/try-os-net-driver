@@ -3,20 +3,24 @@ use lose_net_stack::{IPv4, packets::udp::UDPPacket, MacAddress, results::Packet}
 
 use crate::{fs::File, mm::UserBuffer};
 
-use super::{NET_DEVICE, LOSE_NET_STACK};
+use super::{NET_DEVICE, LOSE_NET_STACK, socket::{add_socket, remove_socket, pop_data}, net_interrupt_handler};
 
 pub struct UDP{
     pub target: IPv4,
     pub sport: u16,
-    pub dport: u16
+    pub dport: u16,
+    pub socket_index: usize
 }
 
 impl UDP {
     pub fn new(target: IPv4, sport: u16, dport: u16) -> Self {
+        let index = add_socket(target, sport, dport).expect("can't add socket");
+
         Self {
             target,
             sport,
-            dport
+            dport,
+            socket_index: index
         }
     }
 }
@@ -31,38 +35,23 @@ impl File for UDP {
     }
 
     fn read(&self, mut buf: crate::mm::UserBuffer) -> usize {
-        let mut recv_buf = vec![0u8; 1024];
         loop {
-            let len = NET_DEVICE.exclusive_access().recv(&mut recv_buf).expect("can't receive from net dev");
-        
-            let packet = LOSE_NET_STACK.exclusive_access().analysis(&recv_buf[..len]);
-            
-            println!("[kernel] receive a packet");
-            hexdump(&recv_buf[..len]);
-
-            match packet {
-                Packet::ARP(arp_packet) => {
-                    let lose_stack = LOSE_NET_STACK.exclusive_access();
-                    let reply_packet = arp_packet.reply_packet(lose_stack.ip, lose_stack.mac).expect("can't build reply");
-                    let reply_data = reply_packet.build_data();
-                    NET_DEVICE.exclusive_access().send(&reply_data).expect("can't send net data");
-                },
+            if let Some(data) = pop_data(self.socket_index) {
+                let data_len = data.len();
+                let mut left = 0;
+                for i in 0..buf.buffers.len() {
+                    let buffer_i_len = buf.buffers[i].len().min(data_len - left);
+                    
+                    buf.buffers[i][..buffer_i_len].copy_from_slice(&data[left..(left + buffer_i_len)]);
     
-                Packet::UDP(udp_packet) => {
-                    let mut left = 0;
-                    for i in 0..buf.buffers.len() {
-                        let buffer_i_len = buf.buffers[i].len().min(udp_packet.data_len - left);
-                        
-                        buf.buffers[i][..buffer_i_len].copy_from_slice(&udp_packet.data[left..(left + buffer_i_len)]);
-
-                        left += buffer_i_len;
-                        if left == udp_packet.data_len {
-                            break;
-                        }
+                    left += buffer_i_len;
+                    if left == data_len {
+                        break;
                     }
-                    return left;
                 }
-                _ => {}
+                return left;
+            } else {
+                net_interrupt_handler();
             }
         }
     }
@@ -93,6 +82,12 @@ impl File for UDP {
         );
         t.send(&udp_packet.build_data()).expect("can't send to net device");
         len
+    }
+}
+
+impl Drop for UDP {
+    fn drop(&mut self) {
+        remove_socket(self.socket_index)
     }
 }
 
