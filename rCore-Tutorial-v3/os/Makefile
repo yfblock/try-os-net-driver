@@ -30,9 +30,9 @@ DISASM ?= -x
 # Run usertests or usershell
 TEST ?=
 
-build: env $(KERNEL_BIN) fs-img 
+# build: env $(KERNEL_BIN) fs-img 
 
-# build: $(KERNEL_BIN)
+build: $(KERNEL_BIN)
 
 env:
 	(rustup target list | grep "riscv64gc-unknown-none-elf (installed)") || rustup target add $(TARGET)
@@ -48,7 +48,7 @@ fs-img: $(APPS)
 	@rm -f $(FS_IMG)
 	@cd ../easy-fs-fuse && cargo run --release -- -s ../user/src/bin/ -t ../user/target/riscv64gc-unknown-none-elf/release/
 
-nvme-img: $(APPS)
+fat32-img: $(APPS)
 	@rm -f $(FS_IMG)
 	@dd if=/dev/zero of=$(FS_IMG) count=40 bs=1M	# 40M
 	@mkfs.vfat $(FS_IMG) -F 32
@@ -56,8 +56,7 @@ nvme-img: $(APPS)
 	@mkdir -p mount
 	@sudo mount $(FS_IMG) ./mount
 
-	@sudo cp -r ../user/target/riscv64gc-unknown-none-elf/release/*.bin ./mount
-	@find ./mount -name "*.bin" | awk -F "./mount/" '{print $2}' | awk -F "." '{print $1}' | xargs -i -t sudo mv ./mount/{}.bin ./mount/{}
+	@find ../user/src/bin/ -name "*.rs" | xargs -i basename {} | awk -F "." '{print $$1}' | xargs -i sudo cp ../user/target/riscv64gc-unknown-none-elf/release/{} ./mount/
 	@sudo umount ./mount
 
 $(APPS):

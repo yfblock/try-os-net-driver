@@ -1,7 +1,9 @@
 pub mod virtio_blk;
 mod nvme;
 
-// pub use virtio_blk::VirtIOBlock;
+#[cfg(feature = "virtio")]
+pub use virtio_blk::VirtIOBlock;
+#[cfg(feature = "nvme")]
 pub use nvme::VirtIOBlock;
 
 use crate::board::BlockDeviceImpl;

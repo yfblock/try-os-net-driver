@@ -115,18 +115,3 @@ pub fn config_pci(){
     let ptr = 0x3000803c as *mut u32;
     unsafe { write_volatile(ptr, 0x21); }
 }
-
-// pub fn init() {
-//     // 初始化 pci
-//     config_pci();
-
-//     unsafe {
-//         // 创建存储设备
-//         DEVICE.call_once(|| {
-//             let device = Box::new(VirtIOBlock(
-//                 NvmeInterface::<DmaAllocatorImpl, IrqControllerImpl>::new(0x40000000)
-//             ));
-//             Mutex::new(device)
-//         });
-//     }
-// }

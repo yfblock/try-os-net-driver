@@ -16,8 +16,8 @@ bitflags = "1.2.1"
 xmas-elf = "0.7.0"
 virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers", rev = "4ee80e5" }
 
-# easy-fs = { path = "../easy-fatfs", package = "easy-fatfs" } # use easy-fatfs
-easy-fs = { path = "../easy-fs", package = "easy-fs" } # use easyfs
+easy-fs = { path = "../easy-fatfs", package = "easy-fatfs" } # use easy-fatfs
+# easy-fs = { path = "../easy-fs", package = "easy-fs" } # use easyfs
 
 nvme_driver = { git = "https://github.com/rcore-os/nvme_driver" }
 pci = { git = "https://github.com/rcore-os/pci-rs" }
@@ -38,3 +38,9 @@ debug = true
 
 [patch.crates-io]
 fatfs = { git = "https://github.com/rafalh/rust-fatfs" }
+
+[features]
+nvme = []
+virtio = []
+
+default = ["nvme"]
